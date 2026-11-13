@@ -12,7 +12,7 @@
 # Installs under /opt (the images contain absolute paths) and links acl2, acl2r and cert.pl into
 # /usr/local/bin. Afterwards git is pointed away from GitHub, and a network probe is printed.
 set -euo pipefail
-REL="https://github.com/ltmquan/acl2-llm-toolchains/releases/download"
+REL="https://github.com/ltmquan/acl2-2026-llm-toolchains/releases/download"
 declare -A TAG=([8.7]="acl2-8.7" [master]="acl2-master-1d2b39a424")
 declare -A DIRS=([8.7]="acl2 acl2r" [master]="acl2-master acl2r-master")
 declare -A SUM=(

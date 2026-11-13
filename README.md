@@ -22,7 +22,7 @@ Ubuntu 24.04 (SBCL 2.2.9).
 ## Use
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ltmquan/acl2-llm-toolchains/main/setup/install.sh | bash -s -- --acl2 8.7 --apt "z3"
+curl -fsSL https://raw.githubusercontent.com/ltmquan/acl2-2026-llm-toolchains/main/setup/install.sh | bash -s -- --acl2 8.7 --apt "z3"
 ```
 
 `setup/install.sh` installs the bundle, links `acl2`, `acl2r` and `cert.pl` into `/usr/local/bin`, can install
