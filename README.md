@@ -4,9 +4,9 @@ Prebuilt ACL2 and ACL2(r) images with pre-certified community books, so that a s
 install them in a few minutes instead of building them. Everything here is built from the public
 [ACL2 repository](https://github.com/acl2/acl2); nothing else is included.
 
-## Bundles (release assets)
+## Bundles (`bundles/`)
 
-| Release | Contents | Unpacks to |
+| Bundle | Contents | Unpacks to |
 |---|---|---|
 | `acl2-8.7` | ACL2 8.7 and ACL2(r) 8.7 (SBCL 2.2.9), git history removed | `/opt/acl2`, `/opt/acl2r` |
 | `acl2-master-1d2b39a424` | ACL2 and ACL2(r) at master commit `1d2b39a424` (2026-11-12) | `/opt/acl2-master`, `/opt/acl2r-master` |
@@ -14,7 +14,8 @@ install them in a few minutes instead of building them. Everything here is built
 Both contain certificates for `std`, `arithmetic`, `arithmetic-5`, `ihs`, `misc/records`, `projects/groups`,
 `projects/linear`, `projects/numbers/fermat`, FTY (`centaur` and `kestrel`), `std/omaps`, the AES
 specification, GL, `bitops`, `kestrel/bv`, `projects/rac/lisp`, and, for ACL2(r), `nonstd`. The master bundle
-also has `projects/set-theory` certified. `build/build-bundles.sh` shows exactly how they were made.
+also has `projects/set-theory` certified. `build/build-bundles.sh` shows exactly how they were made. Each bundle is a `.tar.zst` split into
+90 MB parts (GitHub's file limit is 100 MB); `bundles/SHA256SUMS` has the checksum of each whole bundle.
 
 The images contain absolute paths, so they must be unpacked under `/opt`. They need the `sbcl` package from
 Ubuntu 24.04 (SBCL 2.2.9).

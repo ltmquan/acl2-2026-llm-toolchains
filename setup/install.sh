@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install a prebuilt ACL2 + ACL2(r) toolchain from this repository's releases.
+# Install a prebuilt ACL2 + ACL2(r) toolchain from this repository's bundles/ directory.
 #
 #   install.sh --acl2 8.7|master [--apt "pkg ..."] [--pip "pkg ..."] [--remove "books/dir ..."]
 #
@@ -12,8 +12,9 @@
 # Installs under /opt (the images contain absolute paths) and links acl2, acl2r and cert.pl into
 # /usr/local/bin. Afterwards git is pointed away from GitHub, and a network probe is printed.
 set -euo pipefail
-REL="https://github.com/ltmquan/acl2-2026-llm-toolchains/releases/download"
+RAW="https://raw.githubusercontent.com/ltmquan/acl2-2026-llm-toolchains/${TOOLCHAIN_REF:-main}/bundles"
 declare -A TAG=([8.7]="acl2-8.7" [master]="acl2-master-1d2b39a424")
+declare -A PARTS=([acl2-8.7]=7 [acl2-master-1d2b39a424]=6)
 declare -A DIRS=([8.7]="acl2 acl2r" [master]="acl2-master acl2r-master")
 declare -A SUM=(
   [acl2-8.7]="22b52952ed4c31c866b8c3865ae57fab82d44c00f446c98718ccb1225cb43194"
@@ -40,7 +41,10 @@ apt-get install -y -qq sbcl zstd curl $APT >/dev/null
 
 NAME="${TAG[$WHICH]}"; F="/tmp/$NAME.tar.zst"
 ts "download $NAME"
-curl -fsSL --retry 4 -o "$F" "$REL/$NAME/$NAME.tar.zst"
+: > "$F"
+for ((i=0; i<${PARTS[$NAME]}; i++)); do
+  curl -fsSL --retry 4 "$RAW/$NAME/$NAME.tar.zst.part-$(printf %02d $i)" >> "$F"
+done
 echo "${SUM[$NAME]}  $F" | sha256sum -c --quiet
 ts "unpack"
 tar --use-compress-program=unzstd -xf "$F" -C /opt
