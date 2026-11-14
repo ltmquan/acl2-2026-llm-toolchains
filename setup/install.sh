@@ -63,7 +63,7 @@ for d in $REMOVE; do
     rm -rf "${root:?}/$d"
     # Certificates and compiled files of other books that mention the removed directory.
     grep -rlF --include='*.cert' --include='*.port' --include='*.out' --include='*.fasl' \
-      "${d#books/}" "$root/books" 2>/dev/null | xargs -r rm -f
+      "${d#books/}" "$root/books" 2>/dev/null | xargs -r rm -f || true
   done
 done
 
