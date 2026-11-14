@@ -10,6 +10,7 @@ install them in a few minutes instead of building them. Everything here is built
 |---|---|---|
 | `acl2-8.7` | ACL2 8.7 and ACL2(r) 8.7 (SBCL 2.2.9), git history removed | `/opt/acl2`, `/opt/acl2r` |
 | `acl2-master-1d2b39a424` | ACL2 and ACL2(r) at master commit `1d2b39a424` (2026-11-12) | `/opt/acl2-master`, `/opt/acl2r-master` |
+| `charon-aa29866` | Upstream [Charon](https://github.com/AeneasVerif/charon) at `aa29866` (2026-11-13), with the Rust `nightly-2026-09-17` toolchain it is pinned to (with `rustc-dev`, `rust-src`, `llvm-tools`, `miri`) | `/opt/charon`, `/root/.rustup/toolchains/` |
 
 Both contain certificates for `std`, `arithmetic`, `arithmetic-5`, `ihs`, `misc/records`, `projects/groups`,
 `projects/linear`, `projects/numbers/fermat`, FTY (`centaur` and `kestrel`), `std/omaps`, the AES
@@ -20,6 +21,9 @@ also has `projects/set-theory` certified. `build/build-bundles.sh` shows exactly
 The images contain absolute paths, so they must be unpacked under `/opt`. They need the `sbcl` package from
 Ubuntu 24.04 (SBCL 2.2.9).
 
+`inputs/` holds third-party source files that tasks use, unchanged: `aes-0.9.1.crate` is the RustCrypto `aes`
+crate 0.9.1 as published on crates.io (MIT/Apache-2.0).
+
 ## Use
 
 ```bash
@@ -27,4 +31,5 @@ curl -fsSL https://raw.githubusercontent.com/ltmquan/acl2-2026-llm-toolchains/ma
 ```
 
 `setup/install.sh` installs the bundle, links `acl2`, `acl2r` and `cert.pl` into `/usr/local/bin`, can install
-extra apt or pip packages and delete book directories, checks SHA-256 sums, and prints a network probe.
+extra bundles (`--extra charon`), apt or pip packages and input files, deletes book directories, checks SHA-256
+sums, redirects git away from GitHub (except one allowed repository), and prints a network probe.

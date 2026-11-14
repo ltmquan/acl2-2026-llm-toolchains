@@ -33,3 +33,10 @@ cd /opt
 tar --exclude=.git --exclude='workxxx.*' -cf - acl2 acl2r | zstd -T"$J" -10 -o acl2-8.7.tar.zst
 tar --exclude=.git --exclude='workxxx.*' -cf - acl2-master acl2r-master | zstd -T"$J" -10 -o acl2-master-1d2b39a424.tar.zst
 sha256sum acl2-*.tar.zst
+
+# Charon (upstream, not a fork), with the toolchain named in its rust-toolchain file.
+git clone https://github.com/AeneasVerif/charon.git && cd charon && git checkout aa298662eec5088c041ac53b763fcf954e6a04b5
+git submodule update --init --depth 1
+rustup toolchain install nightly-2026-09-17 --profile minimal -c rustc-dev,llvm-tools,rust-src,miri
+(cd charon && RUSTUP_TOOLCHAIN=nightly-2026-09-17 cargo build --release --bin charon --bin charon-driver)
+# staged as opt/charon/bin/{charon,charon-driver} and root/.rustup/toolchains/nightly-2026-09-17-x86_64-unknown-linux-gnu
