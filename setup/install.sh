@@ -13,7 +13,7 @@
 # --input      files from inputs/ to copy into /opt/inputs
 # --git-allow  repository URL that stays reachable by git after GitHub is redirected
 # --submit     git checkout (path relative to the setup's directory) into which `submit TASK` copies
-#              /work as TASK/ and pushes; its remote stays reachable by git
+#              /work as TASK/ and pushes to branch results/TASK; its remote stays reachable by git
 #
 # ACL2 bundles go under /opt (the images contain absolute paths); acl2, acl2r and cert.pl are linked
 # into /usr/local/bin. Afterwards git is pointed away from GitHub, and a network probe is printed.
@@ -114,7 +114,7 @@ rsync -a --delete --exclude target/ --exclude '*.cert' --exclude '*.fasl' \\
 cd "$R"
 git add -A "\$T"
 git -c user.name=model -c user.email=model@invalid commit -q -m "Save \$T" || echo "nothing new to save"
-git push -q origin HEAD && echo "saved \$T"
+git push -q origin "HEAD:refs/heads/results/\$T" && echo "saved \$T to branch results/\$T"
 EOS
   chmod +x /usr/local/bin/submit
 fi
