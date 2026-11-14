@@ -110,11 +110,12 @@ T="\${1:?usage: submit TASK}"
 mkdir -p "$R/\$T"
 rsync -a --delete --exclude target/ --exclude '*.cert' --exclude '*.fasl' \\
   --exclude '*.port' --exclude '*.out' --exclude '*.lx64fsl' --exclude '*.cert.out' --exclude '*.time' \\
-  --exclude '*@expansion.lsp' --exclude '.sys/' /work/ "$R/\$T/"
+  --exclude '*@expansion.lsp' --exclude '.sys/' --exclude Makefile-tmp /work/ "$R/\$T/"
 cd "$R"
+git checkout -q -B "results/\$T"   # a local branch that tracks its remote, so nothing is left unpushed
 git add -A "\$T"
 git -c user.name=model -c user.email=model@invalid commit -q -m "Save \$T" || echo "nothing new to save"
-git push -q origin "HEAD:refs/heads/results/\$T" && echo "saved \$T to branch results/\$T"
+git push -q -u origin "results/\$T" && echo "saved \$T to branch results/\$T"
 EOS
   chmod +x /usr/local/bin/submit
 fi
