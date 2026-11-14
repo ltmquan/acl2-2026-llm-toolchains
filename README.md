@@ -21,7 +21,7 @@ also has `projects/set-theory` certified. `build/build-bundles.sh` shows exactly
 The images contain absolute paths, so they must be unpacked under `/opt`. They need the `sbcl` package from
 Ubuntu 24.04 (SBCL 2.2.9).
 
-`inputs/` holds third-party source files that tasks use, unchanged: `aes-0.9.1.crate` is the RustCrypto `aes`
+`inputs/` holds third-party source files that tasks use, unchanged (installed into `/opt/inputs`): `aes-0.9.1.crate` is the RustCrypto `aes`
 crate 0.9.1 as published on crates.io (MIT/Apache-2.0).
 
 ## Use

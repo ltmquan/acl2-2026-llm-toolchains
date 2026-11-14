@@ -10,8 +10,10 @@
 # --pip        extra Python packages
 # --remove     book directories (relative to the ACL2 root) to delete from both the ACL2 and ACL2(r)
 #              trees, together with any certificate or compiled file that refers to them
-# --input      files from inputs/ to copy into /work/inputs
+# --input      files from inputs/ to copy into /opt/inputs
 # --git-allow  repository URL that stays reachable by git after GitHub is redirected
+# --submit     git checkout (path relative to the setup's directory) into which `submit TASK` copies
+#              /work as TASK/ and pushes; its remote stays reachable by git
 #
 # ACL2 bundles go under /opt (the images contain absolute paths); acl2, acl2r and cert.pl are linked
 # into /usr/local/bin. Afterwards git is pointed away from GitHub, and a network probe is printed.
@@ -27,7 +29,7 @@ declare -A SUM=(
   [charon-aa29866]="c0fad67d12dc41dde62aaa10e5bf28dab027e51b8f36e999d7eb85af44be19c4"
   [aes-0.9.1.crate]="f1fc76eaeac4c9164506c466d4ffdd8ec9d0c5bf57ee97177c4d8eceb3a0e138"
 )
-WHICH=""; EXTRA=""; APT=""; PIP=""; REMOVE=""; INPUT=""; ALLOW=""
+WHICH=""; EXTRA=""; APT=""; PIP=""; REMOVE=""; INPUT=""; ALLOW=""; SUBMIT=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --acl2) WHICH="$2"; shift 2;;
@@ -37,16 +39,17 @@ while [ $# -gt 0 ]; do
     --remove) REMOVE="$2"; shift 2;;
     --input) INPUT="$2"; shift 2;;
     --git-allow) ALLOW="$2"; shift 2;;
+    --submit) SUBMIT="$2"; shift 2;;
     *) echo "unknown argument $1" >&2; exit 2;;
   esac
 done
 [ "$WHICH" = 8.7 ] || [ "$WHICH" = master ] || { echo "--acl2 must be 8.7 or master" >&2; exit 2; }
 ts() { echo "[setup $(date -u +%H:%M:%S)] $*"; }
 
-ts "apt: sbcl zstd $APT"
+ts "apt: sbcl zstd rsync $APT"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq sbcl zstd curl $APT >/dev/null
+apt-get install -y -qq sbcl zstd curl rsync $APT >/dev/null
 [ -z "$PIP" ] || { ts "pip: $PIP"; pip install -q $PIP; }
 
 fetch() {  # fetch <bundle name>: download its parts, check the sum, unpack
@@ -88,10 +91,33 @@ done
 
 for f in $INPUT; do
   ts "input $f"
-  mkdir -p /work/inputs
-  curl -fsSL --retry 4 -o "/work/inputs/$f" "$BASE/inputs/$f"
-  echo "${SUM[$f]}  /work/inputs/$f" | sha256sum -c --quiet
+  mkdir -p /opt/inputs
+  curl -fsSL --retry 4 -o "/opt/inputs/$f" "$BASE/inputs/$f"
+  echo "${SUM[$f]}  /opt/inputs/$f" | sha256sum -c --quiet
 done
+
+if [ -n "$SUBMIT" ] && [ ! -d "$SUBMIT/.git" ]; then
+  ts "WARNING: $SUBMIT is not a git checkout here; submit not installed"
+elif [ -n "$SUBMIT" ]; then
+  R="$(cd "$SUBMIT" && pwd)"
+  ALLOW="$ALLOW $(git -C "$R" remote get-url origin)"
+  ts "submit -> $R"
+  cat > /usr/local/bin/submit <<EOS
+#!/bin/bash
+# submit TASK: copy /work (without build outputs) to $R/TASK, commit, and push.
+set -euo pipefail
+T="\${1:?usage: submit TASK}"
+mkdir -p "$R/\$T"
+rsync -a --delete --exclude target/ --exclude '*.cert' --exclude '*.fasl' \\
+  --exclude '*.port' --exclude '*.out' --exclude '*.lx64fsl' --exclude '*.cert.out' --exclude '*.time' \\
+  --exclude '*@expansion.lsp' --exclude '.sys/' /work/ "$R/\$T/"
+cd "$R"
+git add -A "\$T"
+git -c user.name=model -c user.email=model@invalid commit -q -m "Save \$T" || echo "nothing new to save"
+git push -q origin HEAD && echo "saved \$T"
+EOS
+  chmod +x /usr/local/bin/submit
+fi
 
 ts "redirect GitHub for git"
 git config --system url."https://github.invalid/".insteadOf "https://github.com/"
